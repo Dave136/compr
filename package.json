@@ -1,0 +1,23 @@
+{
+  "name": "compr",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "packageManager": "pnpm@7.1.7",
+  "description": "Monorepo for compr app",
+  "scripts": {
+    "dev:server": "pnpm -r --filter \"@compr/server\" --parallel run dev",
+    "dev:client": "pnpm -r --filter \"@compr/client\" --parallel run dev",
+    "build:server": "pnpm -r --filter \"@compr/server\" --parallel run build",
+    "build:client": "pnpm -r --filter \"@compr/client\" --parallel run build",
+    "dev": "pnpm run -r --workspace-concurrency 2 --filter \"@compr/client\" --filter \"@compr/server\" dev"
+  },
+  "keywords": [],
+  "author": "David Arenas <davejs136@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  }
+}
