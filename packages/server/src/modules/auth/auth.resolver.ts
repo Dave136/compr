@@ -1,28 +1,36 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
-import { User } from '../user/user.entity';
+import { User } from '../user/users.entity';
 import { AuthService } from './auth.service';
-import { AuthResponse } from './dto/auth.response';
-import { LoginInput } from './dto/login.input';
+import { LoginResponse } from './dto/login-response';
+import { LoginInput } from './dto/login-user.input';
 import { RegisterInput } from './dto/register.input';
+import { AuthGuard } from './guards/auth.guard';
+import { Tokens } from './types/tokens-type';
 
 @Resolver()
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-  @Mutation(() => AuthResponse)
+  @Mutation(() => LoginResponse)
+  @UseGuards(AuthGuard)
   login(
-    @Context() ctx: any,
-    @Args('input') loginInput: LoginInput,
-  ): AuthResponse {
-    return this.authService.login(ctx as User);
+    @Args('input') input: LoginInput,
+    @Context('user') user: User,
+  ): Promise<Tokens> {
+    return this.authService.login(user);
   }
 
-  @Mutation(() => AuthResponse)
+  @Mutation(() => LoginResponse)
   register(
-    @Context() ctx: any,
-    @Args('input') registerInput: RegisterInput,
-  ): AuthResponse {
-    console.log({ ctx });
-    return this.authService.register(registerInput);
+    @Args('input') input: RegisterInput,
+    @Context('user') user,
+  ): Promise<Tokens> {
+    return this.authService.register(input);
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Args('id') id: string) {
+    return this.authService.logout(id);
   }
 }

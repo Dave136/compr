@@ -7,11 +7,13 @@ type User {
   name: String!
   username: String!
   email: String!
-  password: String!
+  password: String
+  refreshToken: String
 }
 
-type AuthResponse {
+type LoginResponse {
   accessToken: String!
+  refreshToken: String!
 }
 
 type Social {
@@ -31,14 +33,20 @@ type Post {
 }
 
 type Query {
-  user(id: String!): User!
-  users(userIds: [String!]!): [User]!
+  user(id: String!): User
+  users(ids: [String!]!): [User]!
   posts: [Post!]!
+  post(id: String!): Post!
 }
 
 type Mutation {
-  login(input: LoginInput!): AuthResponse!
-  register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): LoginResponse!
+  register(input: RegisterInput!): LoginResponse!
+  logout(id: String!): Boolean!
+  updateUser(updateUserData: UpdateUserInput!): User!
+  deleteUser(deleteUserData: DeleteUserInput!): User!
+  createPost(input: PostCreateInput!): Post!
+  updatePost(input: UpdatePostArgs!): Post!
 }
 
 input LoginInput {
@@ -51,5 +59,36 @@ input RegisterInput {
   username: String!
   email: String!
   password: String!
-  confirmPassword: String!
+}
+
+input UpdateUserInput {
+  id: String!
+}
+
+input DeleteUserInput {
+  id: String!
+}
+
+input PostCreateInput {
+  title: String!
+  content: String!
+  phone: String!
+  price: Float!
+  links: SocialInput!
+}
+
+input SocialInput {
+  reference: String!
+  instagram: String
+  twitter: String
+  telegram: String
+}
+
+input UpdatePostArgs {
+  title: String
+  content: String
+  phone: String
+  price: Float
+  links: SocialInput
+  id: String!
 }

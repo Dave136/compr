@@ -36,21 +36,21 @@
  import { GraphQLModule } from '@nestjs/graphql';[m
  import { join } from 'path';[m
 [32m+[m[32mimport { AuthModule } from './modules/auth/auth.module';[m
- import { UserModule } from './modules/user/user.module';[m
+ import { UsersModule } from './modules/user/user.module';[m
  // import { AppController } from './app.controller';[m
  // import { AppService } from './app.service';[m
  [m
  @Module({[m
    imports: [[m
 [32m+[m[32m    AuthModule,[m
-     UserModule,[m
+     UsersModule,[m
      GraphQLModule.forRoot<ApolloDriverConfig>({[m
        driver: ApolloDriver,[m
 [1mdiff --git a/packages/server/src/modules/user/user.service.ts b/packages/server/src/modules/user/user.service.ts[m
 [1mindex 1792a86..89babf2 100644[m
 [1m--- a/packages/server/src/modules/user/user.service.ts[m
 [1m+++ b/packages/server/src/modules/user/user.service.ts[m
-[36m@@ -23,4 +23,8 @@[m [mexport class UserService {[m
+[36m@@ -23,4 +23,8 @@[m [mexport class UsersService {[m
    public getUsers(getUsersArgs: GetUsersArgs): User[] {[m
      return getUsersArgs.userIds.map((id) => this.getUser({ id }));[m
    }[m

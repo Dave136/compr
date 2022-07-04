@@ -1,5 +1,34 @@
-import { InputType, OmitType } from '@nestjs/graphql';
-import { Post } from '../post.entity';
+import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
-export class PostCreateInput extends OmitType(Post, ['id'], InputType) {}
+class SocialInput {
+  @Field()
+  reference: string;
+
+  @Field(() => String, { nullable: true })
+  instagram?: string;
+
+  @Field(() => String, { nullable: true })
+  twitter?: string;
+
+  @Field(() => String, { nullable: true })
+  telegram?: string;
+}
+
+@InputType()
+export class PostCreateInput {
+  @Field()
+  title: string;
+
+  @Field()
+  content: string;
+
+  @Field()
+  phone: string;
+
+  @Field()
+  price: number;
+
+  @Field()
+  links: SocialInput;
+}

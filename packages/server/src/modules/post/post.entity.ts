@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-class Social {
+export class Social {
   @Field()
   reference: string;
 
