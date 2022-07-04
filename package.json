@@ -8,7 +8,7 @@
   "packageManager": "pnpm@7.1.7",
   "description": "Monorepo for compr app",
   "scripts": {
-    "dev:server": "pnpm -r --filter \"@compr/server\" --parallel run dev",
+    "dev:server": "pnpm -r --filter \"@compr/server\" --parallel run start:dev",
     "dev:client": "pnpm -r --filter \"@compr/client\" --parallel run dev",
     "build:server": "pnpm -r --filter \"@compr/server\" --parallel run build",
     "build:client": "pnpm -r --filter \"@compr/client\" --parallel run build",
