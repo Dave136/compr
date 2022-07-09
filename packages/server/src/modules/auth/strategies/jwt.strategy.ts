@@ -19,8 +19,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   validate(validationPayload: {
     email: string;
     password: string;
-  }): User | null {
+  }): Promise<User | null> {
     // return this.authService.validate(validationPayload);
-    return this.usersService.getUserByEmail(validationPayload.email);
+    return this.usersService.findByEmail(validationPayload.email);
   }
 }

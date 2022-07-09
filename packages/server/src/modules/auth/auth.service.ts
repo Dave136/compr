@@ -15,8 +15,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  validate(email: string, password: string): User | null {
-    const user = this.usersService.getUserByEmail(email);
+  async validate(email: string, password: string): Promise<User | null> {
+    const user = await this.usersService.findByEmail(email);
 
     if (!user) {
       return null;
@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   async login(dto: User): Promise<Tokens> {
-    const user = this.usersService.getUserById(dto.id);
+    const user = await this.usersService.findById(dto.id);
 
     if (!user) {
       throw new Error('User not found');
@@ -47,7 +47,7 @@ export class AuthService {
   async register(registerInput: RegisterInput) {
     const password = await bcrypt.hash(registerInput.password, 10);
 
-    const user = this.usersService.createUser({
+    const user = await this.usersService.create({
       ...registerInput,
       password,
     });
@@ -58,12 +58,12 @@ export class AuthService {
     return tokens;
   }
 
-  verify(token: string): User {
+  async verify(token: string): Promise<User> {
     const decoded = this.jwtService.verify(token, {
       secret: jwtSecret,
     });
 
-    const user = this.usersService.getUserByEmail(decoded.email);
+    const user = await this.usersService.findByEmail(decoded.email);
 
     if (!user) {
       throw new Error('Unable to get the user from decoded token.');
@@ -73,7 +73,7 @@ export class AuthService {
   }
 
   async refreshToken(id: string, refreshToken: string): Promise<Tokens> {
-    const user = this.usersService.getUserById(id);
+    const user = await this.usersService.findById(id);
 
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access denied');

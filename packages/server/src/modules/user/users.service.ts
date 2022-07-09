@@ -1,78 +1,58 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
-import { GetUserArgs } from './dto/args/get-user.args';
-import { GetUsersArgs } from './dto/args/get-users.args';
 import { CreateUserInput } from './dto/input/create-user.input';
-import { DeleteUserInput } from './dto/input/delete-user.input';
 import { UpdateUserInput } from './dto/input/update-user.input';
 
 import { User } from './users.entity';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: 'abcn194891247jksmoiu978ln',
-      email: 'test@gmail.com',
-      name: 'test',
-      username: 'test123',
-      password: 'test1234',
-      refreshToken: '',
-    },
-  ];
+  constructor(
+    @InjectRepository(User) private usersRepository: Repository<User>,
+  ) {}
 
-  public createUser(createUserData: CreateUserInput): User {
+  async findAll(): Promise<User[]> {
+    const users = await this.usersRepository.find();
+    return users;
+  }
+
+  findById(id: string): Promise<User> {
+    return this.usersRepository.findOneBy({ id });
+  }
+
+  findByEmail(email: string): Promise<User> {
+    return this.usersRepository.findOneBy({ email });
+  }
+
+  async create(createUserData: CreateUserInput): Promise<User> {
     const user: User = {
       id: v4(),
       ...createUserData,
     };
 
-    this.users.push(user);
+    const created = await this.usersRepository.save(user);
+
+    return created;
+  }
+
+  async update(updateUserData: UpdateUserInput): Promise<User> {
+    await this.usersRepository.update(updateUserData.id, updateUserData);
+    const user = await this.findById(updateUserData.id);
 
     return user;
   }
 
-  public updateUser(updateUserData: UpdateUserInput): User {
-    const user = this.users.find((user) => user.id === updateUserData.id);
-
-    Object.assign(user, updateUserData);
-
+  async remove(id: string): Promise<User> {
+    const user = await this.findById(id);
+    await this.usersRepository.delete(id);
     return user;
   }
 
-  public getUser(getUserArgs: GetUserArgs): User {
-    return this.users.find((user) => user.id === getUserArgs.id);
-  }
-
-  public getUserById(id: string): User | undefined {
-    return this.users.find((user) => user.id === id);
-  }
-
-  public getUserByEmail(email: string): User | undefined {
-    return this.users.find((user) => user.email === email);
-  }
-
-  public getUsers(getUsersArgs: GetUsersArgs): User[] {
-    return getUsersArgs.ids.map((id) => this.getUser({ id }));
-  }
-
-  public deleteUser(deleteUserData: DeleteUserInput): User {
-    const userIndex = this.users.findIndex(
-      (user) => user.id === deleteUserData.id,
-    );
-
-    const user = this.users[userIndex];
-
-    this.users.splice(userIndex);
-
-    return user;
-  }
-
-  public updateRefreshToken(id: string, token: string) {
-    const user = this.users.find((user) => user.id === id);
-
-    Object.assign(user, { ...user, refreshToken: token });
-
-    return user;
+  async updateRefreshToken(id: string, token: string) {
+    await this.usersRepository.update(id, {
+      refreshToken: token,
+    });
   }
 }

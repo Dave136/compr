@@ -2,10 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
-import { GetUserArgs } from './dto/args/get-user.args';
-import { GetUsersArgs } from './dto/args/get-users.args';
 // import { CreateUserInput } from './dto/input/create-user.input';
-import { DeleteUserInput } from './dto/input/delete-user.input';
 import { UpdateUserInput } from './dto/input/update-user.input';
 import { User } from './users.entity';
 import { UsersService } from './users.service';
@@ -14,29 +11,39 @@ import { UsersService } from './users.service';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
+  @Query(() => User)
+  @UseGuards(GqlAuthGuard)
+  whoami(@CurrentUser() user: User): User {
+    return user;
+  }
+
+  @Query(() => [User], { name: 'users', nullable: true })
+  @UseGuards(GqlAuthGuard)
+  getUsers(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+
   @Query(() => User, { name: 'user', nullable: true })
   @UseGuards(GqlAuthGuard)
-  getUser(@CurrentUser() user: User, @Args() getUserArgs: GetUserArgs): User {
-    return this.usersService.getUser(getUserArgs);
+  getUser(@Args('id') id: string): Promise<User> {
+    return this.usersService.findById(id);
   }
 
-  @Query(() => [User], { name: 'users', nullable: 'items' })
-  getUsers(@Args() getUsersArgs: GetUsersArgs): User[] {
-    return this.usersService.getUsers(getUsersArgs);
-  }
-
+  // 👀 is neccessary ?
   // @Mutation(() => User)
   // createUser(@Args('createUserData') createUserData: CreateUserInput): User {
   //   return this.usersService.createUser(createUserData);
   // }
 
   @Mutation(() => User)
-  updateUser(@Args('updateUserData') updateUserData: UpdateUserInput): User {
-    return this.usersService.updateUser(updateUserData);
+  @UseGuards(GqlAuthGuard)
+  updateUser(@Args('data') dto: UpdateUserInput): Promise<User> {
+    return this.usersService.update(dto);
   }
 
   @Mutation(() => User)
-  deleteUser(@Args('deleteUserData') deleteUserData: DeleteUserInput): User {
-    return this.usersService.deleteUser(deleteUserData);
+  @UseGuards(GqlAuthGuard)
+  deleteUser(@Args('id') id: string): Promise<User> {
+    return this.usersService.remove(id);
   }
 }
