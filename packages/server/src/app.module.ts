@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AuthModule } from './modules/auth/auth.module';
+import { Post } from './modules/post/post.entity';
 import { PostModule } from './modules/post/post.module';
 import { User } from './modules/user/users.entity';
 import { UsersModule } from './modules/user/users.module';
@@ -23,7 +24,7 @@ import { Variables } from './utils/types';
         username: configService.get(Variables.PgUser),
         password: configService.get(Variables.PgPassword),
         database: configService.get(Variables.PgDB),
-        entities: [User],
+        entities: [User, Post],
         synchronize: true,
       }),
       imports: [ConfigModule],

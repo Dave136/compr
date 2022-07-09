@@ -1,54 +1,43 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { v4 } from 'uuid';
 import { PostCreateInput } from './dto/post-create.input';
 import { Post } from './post.entity';
 
 @Injectable()
 export class PostService {
-  private posts: Post[] = [
-    {
-      id: '1',
-      title: 'My personal title',
-      content: 'My personal content',
-      phone: '+584121239847',
-      price: 20,
-      links: {
-        reference: 'reference page',
-      },
-    },
-  ];
+  constructor(
+    @InjectRepository(Post) private postsRepository: Repository<Post>,
+  ) {}
 
-  findAll(): Post[] {
-    return this.posts;
+  findAll(): Promise<Post[]> {
+    return this.postsRepository.find();
   }
 
-  findById(id: string): Post {
-    return this.posts.find((post) => post.id === id);
+  findById(id: string): Promise<Post> {
+    return this.postsRepository.findOneBy({ id });
   }
 
-  createPost(postCreateInput: PostCreateInput): Post {
-    const newPost: Post = {
-      id: Date.now().toString(),
+  async create(postCreateInput: PostCreateInput): Promise<Post> {
+    const post: Post = {
+      id: v4(),
       ...postCreateInput,
     };
 
-    this.posts.push(newPost);
-
-    return newPost;
+    const created = await this.postsRepository.save(post);
+    return created;
   }
 
-  updatePost(id: string, postBody: Partial<PostCreateInput>): Post {
-    const post = this.findById(id);
+  async update(id: string, postBody: Partial<PostCreateInput>): Promise<Post> {
+    await this.postsRepository.update(id, postBody);
+    const post = await this.findById(id);
+    return post;
+  }
 
-    if (!post) {
-      throw new Error('The post was not found');
-    }
-
-    const updated = this.posts.map((post) =>
-      post.id === id ? { ...post, ...postBody } : post,
-    );
-
-    this.posts = updated;
-
-    return this.findById(id);
+  async remove(id: string): Promise<Post> {
+    const post = await this.findById(id);
+    await this.postsRepository.delete(id);
+    return post;
   }
 }

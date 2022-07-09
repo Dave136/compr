@@ -23,7 +23,10 @@ export class UsersService {
   }
 
   findByEmail(email: string): Promise<User> {
-    return this.usersRepository.findOneBy({ email });
+    return this.usersRepository.findOne({
+      where: { email },
+      select: { password: true },
+    });
   }
 
   async create(createUserData: CreateUserInput): Promise<User> {
